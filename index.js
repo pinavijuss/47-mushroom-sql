@@ -108,7 +108,81 @@ app.init = async () => {
         console.log(`${++i}) ${upName(item.name)} - ${+item.amount} EUR`)
     }
 
+    sql = 'SELECT `ratings`.`id`, `name_lt`, SUM(`count`) as amount\
+    FROM `ratings`\
+    LEFT JOIN `mushroom` \
+    ON `mushroom`. `rating` = `ratings`.`id`\
+    LEFT JOIN `basket`\
+    ON `basket`.`mushroom_id` = `mushroom`.`id`\
+    GROUP BY `ratings`.`id`\
+    ORDER BY `ratings`.`id` DESC';
+
+    [rows] = await connection.execute(sql);
+    console.log(rows);
+
+    // async function mushroomByRating(lang) {
+
+    //     const langList = ['en', 'lt'];
+
+    //     lang = langList.includes(lang) ? lang : langList[0];
+
+    //     sql = 'SELECT `ratings`.`id`, `name_' + lang + '`, SUM(`count`) as amount\
+    //     FROM `ratings`\
+    //     LEFT JOIN `mushroom`\
+    //         ON `mushroom`.`rating`=`ratings`.`id`\
+    //     LEFT JOIN `basket`\
+    //         ON `basket`.`mushroom_id` =`mushroom`.`id`\
+    //     GROUP BY `ratings`.`id`\
+    //     ORDER BY `ratings`.`id` DESC';
+
+    //     [rows] = await connection.execute(sql);
+
+    //     // if (lang === 'lt') {
+
+    //     //     console.log(`Grybu kiekis pagal ivertinima:`);
+    //     //     for () {
+    //     //         console.log(`5 zvaigzdutes (labai gerai) - 5 grybai`);
+    //     //     }
+    //     // }
+    // }
+    // await mushroomByRating('lt');
+    // await mushroomByRating('en');
+
+
+    //9
+
+    sql = 'SELECT `mushroom`, `rating` FROM `mushroom`\
+    ORDER BY `rating` ASC';
+    [rows] = await connection.execute(sql);
+
+    let mushrooms = [];
+    for (let i = 0; i < rows.length; i++) {
+        mushroomRating = rows[i].rating
+        if (mushroomRating >= 4) {
+
+            mushrooms.push(upName(rows[i].mushroom));
+        }
+
+    }
+
+    console.log(`Grybai: ${mushrooms.join(', ')}.`);
+
+
+    sql = 'SELECT `mushroom` as name, `rating` FROM `mushroom`\
+    WHERE `rating` IN (1 , 3 , 5)\
+    ORDER BY `rating` ASC';
+    [rows] = await connection.execute(sql);
+
+    mushroomList = [];
+    for (let { name, rating } of rows) {
+        mushroomList.push(upName(name));
+
+    }
+    console.log(`Grybai: ${mushroomList.join(', ')}.`)
+
 }
+
+
 
 app.init();
 
